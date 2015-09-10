@@ -12,6 +12,7 @@
     <body>
         
 	<div id="chart-line-hitsperday"></div>
+	<div id="chart-ring-year"></div>
 
     <script>
 		
@@ -44,12 +45,17 @@
 		data.forEach(function(d) {
 			d.date = parseDate(d.date);
 			d.total= d.http_404+d.http_200+d.http_302;
+			d.Year=d.date.getFullYear();
 		});
 		print_filter("data"); 
 		
 		var dateDim = ndx.dimension(function(d) {return d.date;});
 		var hits = dateDim.group().reduceSum(function(d) {return d.total;});
 		// var hits = dateDim.group().reduceSum(dc.pluck('total')); LHR not working
+		
+		var yearRingChart   = dc.pieChart("#chart-ring-year");
+		var yearDim  = ndx.dimension(function(d) {return +d.Year;});
+		var year_total = yearDim.group().reduceSum(function(d) {return d.total;});
 		
 		var minDate = dateDim.bottom(1)[0].date;
 		var maxDate = dateDim.top(1)[0].date;
@@ -60,7 +66,14 @@
 			.width(500).height(200)
 			.dimension(dateDim)
 			.group(hits)
-			.x(d3.time.scale().domain([minDate,maxDate])); 
+			.x(d3.time.scale().domain([minDate,maxDate])) 
+			.yAxisLabel("Hits per day");
+
+		yearRingChart
+			.width(150).height(150)
+			.dimension(yearDim)
+			.group(year_total)
+			.innerRadius(30);			
 			
 		dc.renderAll();
 
