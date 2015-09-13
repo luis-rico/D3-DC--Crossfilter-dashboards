@@ -15,6 +15,10 @@ def crossfilter():
 @app.route('/crossfilter2')
 def crossfilter2():
     return render_template("part2.html")
+	
+@app.route('/crossfilter2_ext')
+def crossfilter2_ext():
+    return render_template("part2_extData_LHR.html")
 
 
 if __name__ == "__main__":
