@@ -13,6 +13,17 @@
         
 	<div id="chart-line-hitsperday"></div>
 	<div id="chart-ring-year"></div>
+	<div style='clear:both;'>
+		<table id="dc-data-table">
+			<thead>
+			<tr class="header">
+				<th>Day</th>
+				<th>TPS 200</th>
+				<th>TPS 302</th>
+				<th>TPS Total</th>
+			</tr>
+			</thead>
+		</table>
 
     <script>
 		
@@ -65,20 +76,42 @@
 		var minDate = dateDim.bottom(1)[0].date;
 		var maxDate = dateDim.top(1)[0].date;
 		
-		var hitslineChart  = dc.lineChart("#chart-line-hitsperday"); 
+		var hitslineChart  = dc.lineChart("#chart-line-hitsperday");
+		
+		var status_200=dateDim.group().reduceSum(function(d) {return d.http_200});
+		var status_302=dateDim.group().reduceSum(function(d) {return d.http_302});
+		var status_404=dateDim.group().reduceSum(function(d) {return d.http_404});
 		
 		hitslineChart
 			.width(500).height(200)
 			.dimension(dateDim)
-			.group(hits)
+			.group(status_200,"200")
+			.stack(status_302,"302")
+			.stack(status_404,"404")
+			.renderArea(true)
 			.x(d3.time.scale().domain([minDate,maxDate])) 
+			.brushOn(false)
+			.legend(dc.legend().x(50).y(10).itemHeight(13).gap(5))
 			.yAxisLabel("Hits per day");
 
 		yearRingChart
 			.width(150).height(150)
 			.dimension(yearDim)
 			.group(year_total)
-			.innerRadius(30);			
+			.innerRadius(30);
+
+		var datatable = dc.dataTable("#dc-data-table");
+		datatable
+			.dimension(dateDim)
+			.group(function(d) {return d.Year;})
+			//dynamic columns creation using an array of closures
+			.columns([
+				function(d) { return d.date.getDate() + "/" + (d.date.getMonth() + 1) + "/" + d.date.getFullYear();},
+				function(d) { return d.http_200;},
+				function(d) { return d.http_302;},
+				function(d)	{ return d.http_404;},
+				function(d)	{ return d.total;}
+			]);
 			
 		dc.renderAll();
 			
