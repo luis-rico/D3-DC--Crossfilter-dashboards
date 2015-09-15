@@ -23,6 +23,10 @@ def crossfilter2_ext_data():
 @app.route('/crossfilter3')
 def crossfilter3():
     return render_template("part3.html")
+	
+@app.route('/cont1')
+def cont1():
+    return render_template("cont1.html")
 
 if __name__ == "__main__":
     app.run()

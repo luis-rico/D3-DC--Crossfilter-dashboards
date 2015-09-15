@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+		<meta http-equiv="content-type" content="text/html; charset=UTF8"> 
+		<script type="text/javascript" src="https://rawgithub.com/NickQiZhu/dc.js/master/web/js/crossfilter.js"></script>
+		<script src="/static/d3.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.js" type="text/javascript"></script>
+		<link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/dc/1.7.0/dc.css" media="screen" /> 
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/dc/1.7.0/dc.js" type="text/javascript"></script>
+    </head>
+    <body>
+        
+	<div id="chart-line-amountperday"></div>
+	<div id="chart-ring-year"></div>
+	<div id="chart-ring-status"></div>
+	<div style='clear:both;'>
+		<table id="dc-data-table">
+			<thead>
+			<tr class="header">
+				<th>Day</th>
+				<th>TPS 200</th>
+				<th>TPS 302</th>
+				<th>TPS Total</th>
+			</tr>
+			</thead>
+		</table>
+
+    <script>
+		
+		function print_filter(filter){
+			var f=eval(filter);
+			if (typeof(f.length) != "undefined") {}else{}
+			if (typeof(f.top) != "undefined") {f=f.top(Infinity);}else{}
+			if (typeof(f.dimension) != "undefined") {f=f.dimension(function(d) { return "";}).top(Infinity);}else{}
+			console.log(filter+"("+f.length+") = "+JSON.stringify(f).replace("[","[\n\t").replace(/}\,/g,"},\n\t").replace("]","\n]"));
+		} 
+
+		//var data = [
+		//	{"status":"http_302","hits":0,"date":"01/03/2013"},
+		
+		
+	d3.tsv("/static/Cont_Quarters.tsv", function (data) {	
+		
+			
+		//console.log(data);
+		
+				
+		var convert_2_int = function() {
+		// LHR This function is needed as when tsv is imported, http variables are strings rather than integers
+			var max_length = data.length; 
+				for (var i=0; i < max_length; i++) {
+					data[i].Amount = parseInt(data[i].Amount);
+					data[i]["Num Trans"] = parseInt(data[i]["Num Trans"]);
+				}
+		}
+		
+		convert_2_int();
+		
+		console.log(data);
+
+		
+		//var parseDate = d3.time.format("%m/%Y").parse;  // LHR this is a function expression
+		//data.forEach(function(d) {		// LHR d only exists whilst forEach is being executed.
+		//	d.date = parseDate(d.date);
+		//	d.Year=d.date.getFullYear();
+		//});
+		
+		console.log(data);
+		
+		var ndx = crossfilter(data);
+		
+		
+		var dateDim = ndx.dimension(function(d) {return d.date;});   // LHR Not to be confused with a function expression. dateDim actually is executed
+		
+				
+		var yearRingChart   = dc.pieChart("#chart-ring-year");
+		var yearDim  = ndx.dimension(function(d) {return +d.Year;});
+		
+		
+		var minDate = dateDim.bottom(1)[0].date;
+		var maxDate = dateDim.top(1)[0].date;
+		
+		var amountlineChart  = dc.lineChart("#chart-line-amountperday");
+		
+
+		var Essentials=dateDim.group().reduceSum(function(d)
+			{if (d["Top_Discriminant"]==='Essentials') {return d.Amount;} else {return 0;}});
+		var Holidays=dateDim.group().reduceSum(function(d)
+			{if (d["Top_Discriminant"]==='Holidays') {return d.Amount;} else {return 0;}});
+		var House_Car_Loans=dateDim.group().reduceSum(function(d)
+			{if (d["Top_Discriminant"]==='House & Car Loans') {return d.Amount;} else {return 0;}});
+		var Moving_to_Melbourne=dateDim.group().reduceSum(function(d)
+			{if (d["Top_Discriminant"]==='Moving to Melbourne') {return d.Amount;} else {return 0;}});
+		var Non_Essentials=dateDim.group().reduceSum(function(d)
+			{if (d["Top_Discriminant"]==='Non Essentials') {return d.Amount;} else {return 0;}});
+		var Non_Expenses=dateDim.group().reduceSum(function(d)
+			{if (d["Top_Discriminant"]==='Non Expenses') {return d.Amount;} else {return 0;}});
+			
+		
+		amountlineChart                          // LHR note that hits is not used anymore (see part2.html)
+			.width(500).height(200)
+			.dimension(dateDim)
+			.group(Essentials,"Essentials")
+			.stack(Holidays,"Holidays")
+			.stack(House_Car_Loans,"Loans")
+			.stack(Moving_to_Melbourne,"Moving")
+			.stack(Non_Essentials,"Non Essentials")
+			.stack(Non_Expenses,"Non Expenses")
+			.renderArea(true)
+			.x(d3.time.scale().domain([minDate,maxDate])) 
+			//.brushOn(false)
+			.legend(dc.legend().x(50).y(10).itemHeight(13).gap(5))
+			.yAxisLabel("Amount per day");
+			
+		dc.renderAll();
+
+		yearRingChart
+			.width(150).height(150)
+			.dimension(yearDim)
+			.group(year_total)
+			.innerRadius(30);
+			
+			
+		var statusRingChart = dc.pieChart("#chart-ring-status");
+		var statusDim = ndx.dimension(function(d) {return d.status;});
+		var hit_status = statusDim.group().reduceSum(function(d) {return d.hits;});
+		
+		statusRingChart
+			.width(150).height(150)
+			.dimension(statusDim)
+			.group(hit_status)
+			.innerRadius(30);
+			
+
+		var datatable = dc.dataTable("#dc-data-table");
+		//datatable
+		//	.dimension(dateDim)
+		//	.group(function(d) {return d.Year;})
+			//dynamic columns creation using an array of closures
+		//	.columns([
+		//		function(d) { return d.date.getDate() + "/" + (d.date.getMonth() + 1) + "/" + d.date.getFullYear();},
+		//		function(d) { return d.http_200;},
+		//		function(d) { return d.http_302;},
+		//		function(d)	{ return d.http_404;},
+		//		function(d)	{ return d.total;}
+		//	]);
+		
+		var tableGroup = dateDim.group().reduce(
+			function reduceAdd(p,v) {
+				p[v.status] = v.hits;
+				p["Year"] = v.Year;
+				return p;
+			},
+			function reduceRemove(p,v) {
+				p[v.status] = 0;
+				p["Year"]=v.Year;
+				
+				return p;
+			},
+			function reduceInitial() {return {}; }
+		);
+		
+		datatable
+			.dimension(tableGroup)
+			.group(function(d) {return d.value.Year;})
+			// dynamic columns creation using an array of closures
+			.columns([
+				function(d) {return d.key.getDate() + "/" + (d.key.getMonth() + 1) + "/" + d.key.getFullYear(); },
+				function(d) {return d.value.http_200;},
+				function(d) {return d.value.http_302;},
+				function(d) {return d.value.http_404;},
+				function(d) {return d.value.http_200+d.value.http_302+d.value.http_404;}
+			]);
+			
+		console.log(dateDim);
+			
+		dc.renderAll();
+		
+	});
+			
+
+    </script>
+
+    </body>
+</html>
