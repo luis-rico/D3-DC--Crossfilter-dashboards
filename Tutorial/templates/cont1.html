@@ -76,6 +76,7 @@
 				
 		var yearRingChart   = dc.pieChart("#chart-ring-year");
 		var yearDim  = ndx.dimension(function(d) {return +d.Year;});
+		var year_total = yearDim.group().reduceSum(function(d) {return d.Amount;});
 		
 		
 		var minDate = dateDim.bottom(1)[0].date;
@@ -113,7 +114,7 @@
 			.legend(dc.legend().x(50).y(10).itemHeight(13).gap(5))
 			.yAxisLabel("Amount per day");
 			
-		dc.renderAll();
+		//dc.renderAll();
 
 		yearRingChart
 			.width(150).height(150)
@@ -133,47 +134,7 @@
 			.innerRadius(30);
 			
 
-		var datatable = dc.dataTable("#dc-data-table");
-		//datatable
-		//	.dimension(dateDim)
-		//	.group(function(d) {return d.Year;})
-			//dynamic columns creation using an array of closures
-		//	.columns([
-		//		function(d) { return d.date.getDate() + "/" + (d.date.getMonth() + 1) + "/" + d.date.getFullYear();},
-		//		function(d) { return d.http_200;},
-		//		function(d) { return d.http_302;},
-		//		function(d)	{ return d.http_404;},
-		//		function(d)	{ return d.total;}
-		//	]);
-		
-		var tableGroup = dateDim.group().reduce(
-			function reduceAdd(p,v) {
-				p[v.status] = v.hits;
-				p["Year"] = v.Year;
-				return p;
-			},
-			function reduceRemove(p,v) {
-				p[v.status] = 0;
-				p["Year"]=v.Year;
-				
-				return p;
-			},
-			function reduceInitial() {return {}; }
-		);
-		
-		datatable
-			.dimension(tableGroup)
-			.group(function(d) {return d.value.Year;})
-			// dynamic columns creation using an array of closures
-			.columns([
-				function(d) {return d.key.getDate() + "/" + (d.key.getMonth() + 1) + "/" + d.key.getFullYear(); },
-				function(d) {return d.value.http_200;},
-				function(d) {return d.value.http_302;},
-				function(d) {return d.value.http_404;},
-				function(d) {return d.value.http_200+d.value.http_302+d.value.http_404;}
-			]);
-			
-		console.log(dateDim);
+
 			
 		dc.renderAll();
 		
