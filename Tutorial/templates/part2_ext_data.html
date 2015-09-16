@@ -55,19 +55,31 @@
 		
 		console.log(data);
 
-		var ndx = crossfilter(data); 
+		// var ndx = crossfilter(data); 
 		
-		var parseDate = d3.time.format("%m/%d/%Y").parse;
-		data.forEach(function(d) {
+		var parseDate = d3.time.format("%m/%d/%Y").parse;  // LHR this is a function expression
+		data.forEach(function(d, indix) {		// LHR d only exists whilst forEach is being executed. I inserted indix for research
 			d.date = parseDate(d.date);
 			d.total= d.http_404+d.http_200+d.http_302;
 			d.Year=d.date.getFullYear();
+			// console.log(indix);
 		});
-		print_filter(data); 
 		
-		var dateDim = ndx.dimension(function(d) {return d.date;});
-		var hits = dateDim.group().reduceSum(function(d) {return d.total;});
-		// var hits = dateDim.group().reduceSum(dc.pluck('total')); LHR not working
+		var ndx = crossfilter(data);
+		
+		print_filter(ndx);
+		
+		data.forEach(function(apolo) {   //LHR this showed me that once crossfilter is declared, any changes in data are followed in ndx
+			apolo.LHR = "Yuppy";
+		});
+		
+		print_filter(ndx);
+		
+		var dateDim = ndx.dimension(function(d) {return d.date;});   // LHR Not to be confused with a function expression. dateDim actually is executed
+		
+		var dummyvar = "hola"; //LHR This is to create a gap between dateDim and hits and insert a breakpoint to debug. This helped to conclude line above for dateDim
+		
+		//var hits = dateDim.group().reduceSum(function(d) {return d.total;});
 		
 		var yearRingChart   = dc.pieChart("#chart-ring-year");
 		var yearDim  = ndx.dimension(function(d) {return +d.Year;});
@@ -82,7 +94,7 @@
 		var status_302=dateDim.group().reduceSum(function(d) {return d.http_302});
 		var status_404=dateDim.group().reduceSum(function(d) {return d.http_404});
 		
-		hitslineChart
+		hitslineChart                          // LHR note that hits is not used anymore (see part2.html)
 			.width(500).height(200)
 			.dimension(dateDim)
 			.group(status_200,"200")
@@ -112,6 +124,8 @@
 				function(d)	{ return d.http_404;},
 				function(d)	{ return d.total;}
 			]);
+			
+		console.log(dateDim);
 			
 		dc.renderAll();
 			
