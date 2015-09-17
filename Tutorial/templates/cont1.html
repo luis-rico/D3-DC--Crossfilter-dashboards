@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -40,7 +41,7 @@
 		//	{"status":"http_302","hits":0,"date":"01/03/2013"},
 		
 		
-	d3.tsv("/static/Cont_Quarters.tsv", function (data) {	
+	d3.tsv("/static/Cont_Quarters_amended.tsv", function (data) {	
 		
 			
 		//console.log(data);
@@ -60,18 +61,18 @@
 		console.log(data);
 
 		
-		//var parseDate = d3.time.format("%m/%Y").parse;  // LHR this is a function expression
-		//data.forEach(function(d) {		// LHR d only exists whilst forEach is being executed.
-		//	d.date = parseDate(d.date);
-		//	d.Year=d.date.getFullYear();
-		//});
+		var parseDate = d3.time.format("%m/%d/%Y").parse;  // LHR this is a function expression
+			data.forEach(function(d) {		// LHR d only exists whilst forEach is being executed.
+			d.Date = parseDate(d.Date);
+			d.Year=d.Date.getFullYear();
+		});
 		
 		console.log(data);
 		
 		var ndx = crossfilter(data);
 		
 		
-		var dateDim = ndx.dimension(function(d) {return d.date;});   // LHR Not to be confused with a function expression. dateDim actually is executed
+		var dateDim = ndx.dimension(function(d) {return d.Date;});   // LHR Not to be confused with a function expression. dateDim actually is executed
 		
 				
 		var yearRingChart   = dc.pieChart("#chart-ring-year");
@@ -79,24 +80,24 @@
 		var year_total = yearDim.group().reduceSum(function(d) {return d.Amount;});
 		
 		
-		var minDate = dateDim.bottom(1)[0].date;
-		var maxDate = dateDim.top(1)[0].date;
+		var minDate = dateDim.bottom(1)[0].Date;
+		var maxDate = dateDim.top(1)[0].Date;
 		
 		var amountlineChart  = dc.lineChart("#chart-line-amountperday");
 		
 
 		var Essentials=dateDim.group().reduceSum(function(d)
-			{if (d["Top_Discriminant"]==='Essentials') {return d.Amount;} else {return 0;}});
+			{if (d.Top_Discriminant==='Essentials') {return d.Amount;} else {return 0;}});
 		var Holidays=dateDim.group().reduceSum(function(d)
-			{if (d["Top_Discriminant"]==='Holidays') {return d.Amount;} else {return 0;}});
+			{if (d.Top_Discriminant==='Holidays') {return d.Amount;} else {return 0;}});
 		var House_Car_Loans=dateDim.group().reduceSum(function(d)
-			{if (d["Top_Discriminant"]==='House & Car Loans') {return d.Amount;} else {return 0;}});
-		var Moving_to_Melbourne=dateDim.group().reduceSum(function(d)
-			{if (d["Top_Discriminant"]==='Moving to Melbourne') {return d.Amount;} else {return 0;}});
+			{if (d.Top_Discriminant==='House & Car Loans') {return d.Amount;} else {return 0;}});
+		//var Moving_to_Melbourne=dateDim.group().reduceSum(function(d)
+		//	{if (d.Top_Discriminant==='Moving to Melbourne') {return d.Amount;} else {return 0;}});
 		var Non_Essentials=dateDim.group().reduceSum(function(d)
-			{if (d["Top_Discriminant"]==='Non Essentials') {return d.Amount;} else {return 0;}});
+			{if (d.Top_Discriminant==='Non Essentials') {return d.Amount;} else {return 0;}});
 		var Non_Expenses=dateDim.group().reduceSum(function(d)
-			{if (d["Top_Discriminant"]==='Non Expenses') {return d.Amount;} else {return 0;}});
+			{if (d.Top_Discriminant==='Non Expenses') {return d.Amount;} else {return 0;}});
 			
 		
 		amountlineChart                          // LHR note that hits is not used anymore (see part2.html)
@@ -105,7 +106,7 @@
 			.group(Essentials,"Essentials")
 			.stack(Holidays,"Holidays")
 			.stack(House_Car_Loans,"Loans")
-			.stack(Moving_to_Melbourne,"Moving")
+			//.stack(Moving_to_Melbourne,"Moving")
 			.stack(Non_Essentials,"Non Essentials")
 			.stack(Non_Expenses,"Non Expenses")
 			.renderArea(true)
@@ -124,13 +125,13 @@
 			
 			
 		var statusRingChart = dc.pieChart("#chart-ring-status");
-		var statusDim = ndx.dimension(function(d) {return d.status;});
-		var hit_status = statusDim.group().reduceSum(function(d) {return d.hits;});
+		var Top_DiscriminantDim = ndx.dimension(function(d) {return d.Top_Discriminant;});
+		var Amount_Top_Discriminant = Top_DiscriminantDim.group().reduceSum(function(d) {return d.Amount;});
 		
 		statusRingChart
 			.width(150).height(150)
-			.dimension(statusDim)
-			.group(hit_status)
+			.dimension(Top_DiscriminantDim)
+			.group(Amount_Top_Discriminant)
 			.innerRadius(30);
 			
 
