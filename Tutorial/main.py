@@ -27,6 +27,10 @@ def crossfilter3():
 @app.route('/cont1')
 def cont1():
     return render_template("cont1.html")
+	
+@app.route('/cont2')
+def cont2():
+    return render_template("cont2.html")
 
 if __name__ == "__main__":
     app.run()
