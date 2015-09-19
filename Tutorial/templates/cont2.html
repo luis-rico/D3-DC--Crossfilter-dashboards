@@ -20,9 +20,11 @@
 			<thead>
 			<tr class="header">
 				<th>Day</th>
-				<th>TPS 200</th>
-				<th>TPS 302</th>
-				<th>TPS Total</th>
+				<th>Essentials</th>
+				<th>Holidays</th>
+				<th>House & Car Loans</th>
+				<th>Non Essentials</th>
+				<th>Totals</th>
 			</tr>
 			</thead>
 		</table>
@@ -106,7 +108,7 @@
 			.group(Essentials,"Essentials")
 			.stack(Holidays,"Holidays")
 			.stack(House_Car_Loans,"Loans")
-			.stack(Moving_to_Melbourne,"Moving")
+			//.stack(Moving_to_Melbourne,"Moving")
 			.stack(Non_Essentials,"Non Essentials")
 			//.stack(Non_Expenses,"Non Expenses")
 			.renderArea(true)
@@ -133,8 +135,36 @@
 			.dimension(Top_DiscriminantDim)
 			.group(Amount_Top_Discriminant)
 			.innerRadius(30);
-			
-
+		
+		var datatable = dc.dataTable("#dc-data-table");
+		
+		var tableGroup = dateDim.group().reduce(
+			function reduceAdd(p,v) {
+				p[v.Top_Discriminant] = v.Amount;
+				p["Year"] = v.Year;
+				return p;
+			},
+			function reduceRemove(p,v) {
+				p[v.Top_Discriminant] = 0;
+				p["Year"]=v.Year;
+				
+				return p;
+			},
+			function reduceInitial() {return {}; }
+		);
+		
+		datatable
+			.dimension(tableGroup)
+			.group(function(d) {return d.value.Year;})
+			// dynamic columns creation using an array of closures
+			.columns([
+				function(d) {return d.key.getDate() + "/" + (d.key.getMonth() + 1) + "/" + d.key.getFullYear(); },
+				function(d) {return d.value.Essentials;},
+				function(d) {return d.value.Holidays;},
+				function(d) {return d.value["House & Car Loans"];},
+				function(d) {return d.value["Non Essentials"];},
+				function(d) {return d.value.Essentials+d.value.Holidays+d.value["House & Car Loans"]+d.value["Non Essentials"];}
+			]);
 
 			
 		dc.renderAll();
