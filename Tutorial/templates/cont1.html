@@ -92,8 +92,7 @@
 			{if (d.Top_Discriminant==='Holidays') {return d.Amount;} else {return 0;}});
 		var House_Car_Loans=dateDim.group().reduceSum(function(d)
 			{if (d.Top_Discriminant==='House & Car Loans') {return d.Amount;} else {return 0;}});
-		//var Moving_to_Melbourne=dateDim.group().reduceSum(function(d)
-		//	{if (d.Top_Discriminant==='Moving to Melbourne') {return d.Amount;} else {return 0;}});
+			{if (d.Top_Discriminant==='Moving to Melbourne') {return d.Amount;} else {return 0;}});
 		var Non_Essentials=dateDim.group().reduceSum(function(d)
 			{if (d.Top_Discriminant==='Non Essentials') {return d.Amount;} else {return 0;}});
 		var Non_Expenses=dateDim.group().reduceSum(function(d)
@@ -106,7 +105,7 @@
 			.group(Essentials,"Essentials")
 			.stack(Holidays,"Holidays")
 			.stack(House_Car_Loans,"Loans")
-			//.stack(Moving_to_Melbourne,"Moving")
+			.stack(Moving_to_Melbourne,"Moving")
 			.stack(Non_Essentials,"Non Essentials")
 			.stack(Non_Expenses,"Non Expenses")
 			.renderArea(true)
