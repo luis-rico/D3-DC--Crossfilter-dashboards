@@ -31,6 +31,14 @@ def cont1():
 @app.route('/cont2')
 def cont2():
     return render_template("cont2.html")
+	
+@app.route('/sysviews1')
+def sysviews1():
+    return render_template("SystemViews1.html")
+	
+@app.route('/sysviews2')
+def sysviews2():
+    return render_template("SystemViews2.html")
 
 if __name__ == "__main__":
     app.run()
