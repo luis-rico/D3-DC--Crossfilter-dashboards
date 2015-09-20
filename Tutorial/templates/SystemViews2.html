@@ -15,6 +15,7 @@
 	<div id="chart-line-amountperday"></div>
 	<div id="chart-ring-year"></div>
 	<div id="chart-ring-status"></div>
+	<div id="row-chart"</div>
 	<div style='clear:both;'>
 		<table id="dc-data-table">
 			<thead>
@@ -125,6 +126,36 @@
 			.dimension(yearDim)
 			.group(year_total)
 			.innerRadius(30);
+
+			
+// Row chart code
+
+		var classificationRowChart = dc.rowChart("#row-chart");
+		var Classification = ndx.dimension(function(d) {return d.Classification;});
+		var Faults_Classification = Classification.group().reduceSum(function(d) {return d.Num_Faults;});
+			
+	    classificationRowChart /* dc.rowChart('#day-of-week-chart', 'chartGroup') */
+			.width(180)
+			.height(280)
+			.margins({top: 20, left: 10, right: 10, bottom: 20})
+			.dimension(Classification)
+			.group(Faults_Classification)
+
+			//.ordinalColors(['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#dadaeb'])
+			//.label(function (d) {
+			//	return d.key.split('.')[1];
+			//})
+
+			.title(function (d) {
+				return d.value;
+			})
+			.elasticX(true)
+			.xAxis().ticks(4);
+		
+			
+			
+			
+			
 			
 // Status ring chart code
 			
