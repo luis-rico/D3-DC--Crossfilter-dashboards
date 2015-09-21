@@ -44,7 +44,12 @@ def sysviews2():
 def sysviews3():
     return render_template("SystemViews3.html")
 	
-@app.route('/sysviews4')  ## Not working, it would seem that the two rowChart fight agains it other and no results are produced !
+## Not working, it would seem that the two rowChart fight against each other and no results are produced !
+## This page shows two rowcharts interacting in the same dashboard
+## http://adilmoujahid.com/posts/2015/01/interactive-data-visualization-d3-dc-python-mongodb/
+## This FAQ page in section "Why do two charts on the same dimension not filter each other?" may shed some light on this issue
+## https://github.com/dc-js/dc.js/wiki/FAQ
+@app.route('/sysviews4')
 def sysviews4():
     return render_template("SystemViews4.html")
 	
