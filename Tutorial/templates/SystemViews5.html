@@ -11,18 +11,34 @@
 		<script src="http://cdnjs.cloudflare.com/ajax/libs/dc/1.7.0/dc.js" type="text/javascript"></script>
     </head>
     <body>
-        
-	<div id="chart-line-amountperday"></div>
-	<div id="chart-ring-year"></div>
+    <h2>Waratah Train System Views data - Dashboard demo by Luis Rico Sep 2015</h2>
+	
+	<div class="row">
+		<div id="chart-line-amountperday" class="dc-chart">
+		<!--	<strong>Number of fault across time</strong> -->
+		</div>
+	</div>
+	
+	
+	<div id="chart-ring-year">"Year"</div>
 	<div id="chart-ring-status"></div>
-	<div id="row-chart"</div>
+	<div id="row-chart">"Top 10 Faults - Classification"</div>
 	<div style='clear:both;'>
 		<table id="dc-data-table">
 			<thead>
 			<tr class="header">
 				<th>Date</th>
-				<th>Classification</th>
-				<th>Num Faults Total</th>
+				<th>Trip</th>
+				<th>Wheel</th>
+				<th>Semi</th>
+				<th>Body</th>
+				<th>Lathe</th>
+				<th>Windows</th>
+				<th>Primary</th>
+				<th>Climate</th>
+				<th>Anti</th>
+				<th>Internal</th>
+				<!-- <th>Total_Faults</th> -->
 			</tr>
 			</thead>
 		</table>
@@ -135,18 +151,28 @@
 		var Classification = ndx.dimension(function(d) {return d.Classification;});
 		var Faults_Classification = Classification.group().reduceSum(function(d) {return d.Num_Faults;});
 		
+	// rather than passing Faults_Classification directly to .group() within classificationRowChart, we generate a function that will filter the top 10 of the Faults_Classification group
+		var filtered_group = filter_top(Faults_Classification);
+		function filter_top(Faults_Classification) {
+		  return {
+			all:function () {
+				return Faults_Classification.top(10);
+				}
+			}
+		 }
+		
 			
 	    classificationRowChart /* dc.rowChart('#day-of-week-chart', 'chartGroup') */
 			.width(280)
-			.height(700)
+			.height(300)
 			.margins({top: 20, left: 10, right: 10, bottom: 20})
 			.dimension(Classification)
-			.group(Faults_Classification)
+			.group(filtered_group)
+			//.group(Faults_Classification)  // No needed as we are having a filter for top 10, otherwise, usual group would have been passed as commented out
 			.ordering(function(d) {return -d.value})
 			
-
 			//.ordinalColors(['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#dadaeb'])
-			.colors(['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#dadaeb'])
+			//.colors(['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#dadaeb'])
 			//.label(function (d) {
 			//	return d.key.split('.')[1];
 			//})
@@ -156,55 +182,46 @@
 			})
 			.elasticX(false)
 			.xAxis().ticks(4);
-		
 			
-			
-			
-			
-			
-// Status ring chart code
-			
-		//var statusRingChart = dc.pieChart("#chart-ring-status");
-		//var Top_DiscriminantDim = ndx.dimension(function(d) {return d.Top_Discriminant;});
-		//var Amount_Top_Discriminant = Top_DiscriminantDim.group().reduceSum(function(d) {return d.Amount;});
-		
-		//statusRingChart
-		//	.width(150).height(150)
-		//	.dimension(Top_DiscriminantDim)
-		//	.group(Amount_Top_Discriminant)
-		//	.innerRadius(30);
 		
 // DataTable code	
 
-//	var datatable = dc.dataTable("#dc-data-table");
-//		
-//		var tableGroup = dateDim.group().reduce(
-//			function reduceAdd(p,v) {
-//				p[v.Classification] = v.Num_Faults;
-//				p["Year"] = v.Year;
-//				return p;
-//			},
-//			function reduceRemove(p,v) {
-//				p[v.Classification] = 0;
-//				p["Year"]=v.Year;
-				
-//				return p;
-//			},
-//			function reduceInitial() {return {}; }
-//		);
+	var datatable = dc.dataTable("#dc-data-table");
 		
-//		datatable
-//			.dimension(tableGroup)
-//			.group(function(d) {return d.value.Year;})
+		var tableGroup = dateDim.group().reduce(
+			function reduceAdd(p,v) {
+				p[v.Classification] = v.Num_Faults;
+				p["Year"] = v.Year;
+				return p;
+			},
+			function reduceRemove(p,v) {
+				p[v.Classification] = 0;
+				p["Year"]=v.Year;
+				
+				return p;
+			},
+			function reduceInitial() {return {}; }
+		);
+
+		
+		datatable
+			.dimension(tableGroup)
+			.group(function(d) {return d.value.Year;})
 			// dynamic columns creation using an array of closures
-//			.columns([
-//				function(d) {return d.key.getDate() + "/" + (d.key.getMonth() + 1) + "/" + d.key.getFullYear(); },
-				//function(d) {return d.value.Essentials;},
-//				function(d) {return d.value.Classification;},
-				//function(d) {return d.value["House & Car Loans"];},
-				//function(d) {return d.value["Non Essentials"];},
-				//function(d) {return d.value.Essentials+d.value.Holidays+d.value["House & Car Loans"]+d.value["Non Essentials"];}
-//			]);		
+			.columns([
+				function(d) {return d.key.getDate() + "/" + (d.key.getMonth() + 1) + "/" + d.key.getFullYear(); },
+				function(d) {return d.value.Trip;},
+				function(d) {return d.value["Wheel & Axle"];},
+				function(d) {return d.value["Semi Permanent Coupler"];},
+				function(d) {return d.value.Body;},
+				function(d) {return d.value["Lathe Activity Work Order"];},
+				function(d) {return d.value.Windows;},
+				function(d) {return d.value["Primary Suspension"];},
+				function(d) {return d.value["Climate Control"];},
+				function(d) {return d.value["Anti-Vandal Film"];},
+				function(d) {return d.value.Internal;}
+				//function(d) {return d.value.Trip+d.value["Wheel & Axle"]+d.value["Semi Permanent Coupler"]+d.value.Body+d.value["Lathe Activity Work Order"]+d.value.Windows+d.value["Primary Suspension"]+d.value["Climate Control"]+d.value["Anti-Vandal Film"]+d.value.Internal;}
+			]);		
 			
 		dc.renderAll();
 		

@@ -13,9 +13,9 @@
     <body>
         
 	<div id="chart-line-amountperday"></div>
-	<div id="chart-ring-year"></div>
+	<div id="chart-ring-year">"Year"</div>
 	<div id="chart-ring-status"></div>
-	<div id="row-chart"</div>
+	<div id="row-chart">"Top 10 Faults - Classification"</div>
 	<div style='clear:both;'>
 		<table id="dc-data-table">
 			<thead>
@@ -135,18 +135,28 @@
 		var Classification = ndx.dimension(function(d) {return d.Classification;});
 		var Faults_Classification = Classification.group().reduceSum(function(d) {return d.Num_Faults;});
 		
+	// rather than passing Faults_Classification directly to .group() within classificationRowChart, we generate a function that will filter the top 10 of the Faults_Classification group
+		var filtered_group = filter_top(Faults_Classification);
+		function filter_top(Faults_Classification) {
+		  return {
+			all:function () {
+				return Faults_Classification.top(10);
+				}
+			}
+		 }
+		
 			
 	    classificationRowChart /* dc.rowChart('#day-of-week-chart', 'chartGroup') */
 			.width(280)
-			.height(700)
+			.height(300)
 			.margins({top: 20, left: 10, right: 10, bottom: 20})
 			.dimension(Classification)
-			.group(Faults_Classification)
+			.group(filtered_group)
+			//.group(Faults_Classification)  // No needed as we are having a filter for top 10, otherwise, usual group would have been passed as commented out
 			.ordering(function(d) {return -d.value})
 			
-
 			//.ordinalColors(['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#dadaeb'])
-			.colors(['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#dadaeb'])
+			//.colors(['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#dadaeb'])
 			//.label(function (d) {
 			//	return d.key.split('.')[1];
 			//})
@@ -156,6 +166,8 @@
 			})
 			.elasticX(false)
 			.xAxis().ticks(4);
+			
+		
 		
 			
 			

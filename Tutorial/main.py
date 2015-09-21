@@ -39,6 +39,18 @@ def sysviews1():
 @app.route('/sysviews2')
 def sysviews2():
     return render_template("SystemViews2.html")
+	
+@app.route('/sysviews3')
+def sysviews3():
+    return render_template("SystemViews3.html")
+	
+@app.route('/sysviews4')  ## Not working, it would seem that the two rowChart fight agains it other and no results are produced !
+def sysviews4():
+    return render_template("SystemViews4.html")
+	
+@app.route('/sysviews5')
+def sysviews5():
+    return render_template("SystemViews5.html")
 
 if __name__ == "__main__":
     app.run()
