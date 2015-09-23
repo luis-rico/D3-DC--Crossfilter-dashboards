@@ -57,5 +57,15 @@ def sysviews4():
 def sysviews5():
     return render_template("SystemViews5.html")
 
+# Using a keen.io template	
+@app.route('/sysviews6')
+def sysviews6():
+    return render_template("index.html")
+	
+# Using a custom (LHR) keen.io template	
+@app.route('/sysviews7')
+def sysviews7():
+    return render_template("indexLHR.html")
+
 if __name__ == "__main__":
     app.run()
