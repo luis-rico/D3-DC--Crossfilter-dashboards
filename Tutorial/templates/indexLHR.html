@@ -38,8 +38,8 @@
           <div class="chart-title">
             Pageviews by browser (past 24 hours)
           </div>
-          <div class="chart-stage" id="chart-line-amountperday">
-
+          <div class="chart-stage">
+			<div id="chart-line-amountperday" ></div>
           </div>
           <div class="chart-notes">
             This is a sample text region to describe this chart.
@@ -53,7 +53,8 @@
             Pageviews by browser (past 5 days)
           </div>
           <div class="chart-stage">
-            <img data-src="holder.js/100%x350/white">
+			<div id="row-chart" ></div>
+            <div id="chart-ring-year" ></div>	
           </div>
           <div class="chart-notes">
             Notes go down here
@@ -72,7 +73,24 @@
             Impressions by advertiser
           </div>
           <div class="chart-stage">
-            <img data-src="holder.js/100%x150/white">
+            <table id="dc-data-table">
+				<thead>
+				<tr class="header">
+					<th>Date</th>
+					<th>Trip</th>
+					<th>Wheel</th>
+					<th>Semi</th>
+					<th>Body</th>
+					<th>Lathe</th>
+					<th>Windows</th>
+					<th>Primary</th>
+					<th>Climate</th>
+					<th>Anti</th>
+					<th>Internal</th>
+					<!-- <th>Total_Faults</th> -->
+				</tr>
+				</thead>
+			</table>
           </div>
           <div class="chart-notes">
             Notes go down here
@@ -174,7 +192,7 @@
 			
 		
 		amountlineChart                       
-			.width(500).height(200)
+			.width(750).height(320)
 			.dimension(dateDim)
 			.group(Fault_Count,"Fault Count")
 			//.stack(Holidays,"Holidays")
