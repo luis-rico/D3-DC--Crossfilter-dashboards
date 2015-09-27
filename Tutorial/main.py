@@ -66,6 +66,14 @@ def sysviews6():
 @app.route('/sysviews7')
 def sysviews7():
     return render_template("indexLHR.html")
+	
+@app.route('/sysviews8')
+def sysviews8():
+    return render_template("indexLHR_2.html")
+	
+#References for scrollable tables
+#http://jsfiddle.net/borgboyone/gbkbhngq/
+#https://www.datatables.net/
 
 if __name__ == "__main__":
     app.run()
