@@ -76,6 +76,7 @@ def sysviews8():
 #https://www.datatables.net/
 
 ## Attempt using datatables
+## Now working after sysviews10 was successful
 @app.route('/sysviews9')
 def sysviews9():
     return render_template("indexLHR_3.html")
@@ -84,6 +85,14 @@ def sysviews9():
 @app.route('/sysviews10')
 def sysviews10():
     return render_template("dataTable_only.html")
+
+	
+## sysviews9 + Bubble Chart
+## Bubble chart instead of Data Table
+@app.route('/sysviews11')
+def sysviews11():
+    return render_template("indexLHR_4.html")
+	
 
 if __name__ == "__main__":
     app.run()
