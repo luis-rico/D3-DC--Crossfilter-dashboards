@@ -163,6 +163,8 @@
 		var minDate = dateDim.bottom(1)[0].Fault_Reported_Date;
 		var maxDate = dateDim.top(1)[0].Fault_Reported_Date;
 		
+		console.log(maxDate)
+		
 		var amountlineChart  = dc.lineChart("#chart-line-amountperday");
 		
 
@@ -190,7 +192,7 @@
 			//.stack(Non_Essentials,"Non Essentials")
 			.renderArea(true)
 			.x(d3.time.scale().domain([minDate,maxDate])) 
-			//.brushOn(false)
+			.brushOn(true)
 			.legend(dc.legend().x(50).y(10).itemHeight(13).gap(5))
 			.yAxisLabel("Fault Count");
 
@@ -310,7 +312,7 @@
 	
 
 	faultsBubbleChart
-        .width(490)
+        .width(590)
         .height(250)
         .transitionDuration(1500)
         .margins({top: 10, right: 50, bottom: 30, left: 40})
@@ -331,21 +333,21 @@
             return p.value.radius_bubble;
         })
         .maxBubbleRelativeSize(0.3)
-        .x(d3.scale.linear().domain([minDate, maxDate]))
-        .y(d3.scale.linear().domain([0, 40]))
+        .x(d3.time.scale().domain([minDate, maxDate]))
+        .y(d3.scale.linear().domain([0, 4000]))
         .r(d3.scale.linear().domain([0, 4000]))
-        .elasticY(true)
-        .elasticX(true)
+        /* .elasticY(true) Do not enable this otherwise it will override the range in .y(d3.scale.linear().domain([x, y]))*/
+        /*.elasticX(true) Do not enable this otherwise it will override the range in .x(d3.time.scale().domain([minDate, maxDate])) */
         .yAxisPadding(100)
         .xAxisPadding(500)
         .renderHorizontalGridLines(true)
         .renderVerticalGridLines(true)
         .xAxisLabel('Date')
         .yAxisLabel('ratio classification / fault count')
-        .renderLabel(true)
-        .label(function (p) {
+        .renderLabel(false) /* These are the labels of the bubbles */
+        /* .label(function (p) {
             return p.key;
-        })
+        }) */
         /*.renderTitle(true)*/
         /* .title(function (p) {
             return [
@@ -355,6 +357,7 @@
                 'Fluctuation / Index Ratio: ' + numberFormat(p.value.fluctuationPercentage) + '%'
             ].join('\n');
         }) */
+		/* .brushOn(true) this is not a feature for bubble charts according to blog found in web */
         .yAxis().tickFormat(function (v) {
             return v ;
         });
