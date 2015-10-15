@@ -103,5 +103,11 @@ def sysviews12():
 def sysviews13():
     return render_template("indexLHR_6.html")
 
+## Bubble chart full classication (as opposed to top 10)
+## sysviews11, 12 and 13 still not working
+@app.route('/sysviews14')
+def sysviews14():
+    return render_template("indexLHR_7.html")
+	
 if __name__ == "__main__":
     app.run()
