@@ -299,7 +299,7 @@
 		
 		
 		
-		var Faults_Bubbles = dateDim.group().reduce(
+		var Faults_Bubbles = filtered_group.group().reduce(
 		/* callback for when data is added to the current filter results */
         function (p, v) {
             ++p.count;

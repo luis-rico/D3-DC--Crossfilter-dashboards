@@ -222,7 +222,38 @@
 		  return {
 			all:function () {
 				return Faults_Classification.top(10);
-				}
+				},
+				
+			reduce:
+		/* callback for when data is added to the current filter results */
+        function (p, v) {
+            ++p.count;
+			p.radius_bubble = p.count ? v.Num_Faults :0;
+            p.ratio_bubble = p.count ? p.count / v.Num_Faults * 100 : 0;
+            p.date_bubble = v.Fault_Reported_Date;
+            return p;
+        },
+		/* callback for when data is removed from the current filter results */
+        function (p, v) {
+            --p.count;
+			p.radius_bubble = p.count ? v.Num_Faults :0;
+            p.ratio_bubble = p.count ? p.count / v.Num_Faults * 100 : 0;
+            p.date_bubble = v.Fault_Reported_Date;
+            return p;
+        },
+         /* initialize p */
+        function () {
+            return {
+				count: 0,
+                ratio_bubble: 0,
+                radius_bubble: 0,
+                date_bubble: 0
+            };
+        }
+       
+			
+				
+				
 			}
 		 }
 		
@@ -299,8 +330,8 @@
 		
 		
 		
-		var Faults_Bubbles = dateDim.group().reduce(
-		/* callback for when data is added to the current filter results */
+		/* var Faults_Bubbles = dateDim.group().reduce(
+		callback for when data is added to the current filter results
         function (p, v) {
             ++p.count;
 			p.radius_bubble = p.count ? v.Num_Faults :0;
@@ -308,7 +339,7 @@
             p.date_bubble = v.Fault_Reported_Date;
             return p;
         },
-		/* callback for when data is removed from the current filter results */
+		callback for when data is removed from the current filter results
         function (p, v) {
             --p.count;
 			p.radius_bubble = p.count ? v.Num_Faults :0;
@@ -316,7 +347,7 @@
             p.date_bubble = v.Fault_Reported_Date;
             return p;
         },
-         /* initialize p */
+         initialize p
         function () {
             return {
 				count: 0,
@@ -326,17 +357,17 @@
             };
         }
        
-		);
+		); */
 		
-	console.log(Faults_Bubbles);
+	
 
 	faultsBubbleChart
         .width(590)
         .height(250)
         .transitionDuration(1500)
         .margins({top: 10, right: 50, bottom: 30, left: 40})
-        .dimension(dateDim)
-        .group(Faults_Bubbles)
+        .dimension(Classification)
+        .group(filtered_group)
         /* .colors(colorbrewer.RdYlGn[9]) */
         .colorDomain([-500, 500])
         /*.colorAccessor(function (d) {

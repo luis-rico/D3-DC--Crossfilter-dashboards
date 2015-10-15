@@ -92,7 +92,16 @@ def sysviews10():
 @app.route('/sysviews11')
 def sysviews11():
     return render_template("indexLHR_4.html")
+
+## Bubble chart wip
+@app.route('/sysviews12')
+def sysviews12():
+    return render_template("indexLHR_5.html")
 	
+## Bubble chart wip2 (alternativa)
+@app.route('/sysviews13')
+def sysviews13():
+    return render_template("indexLHR_6.html")
 
 if __name__ == "__main__":
     app.run()
