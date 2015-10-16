@@ -124,7 +124,7 @@
 	
 	
 		
-	d3.tsv("/static/SystemViewsFaultsreduced_LHR_01.tsv", function (data) {	
+	d3.tsv("/static/Known_Data.tsv", function (data) {	
 		
 			
 		//console.log(data);
@@ -163,6 +163,7 @@
 		var minDate = dateDim.bottom(1)[0].Fault_Reported_Date;
 		var maxDate = dateDim.top(1)[0].Fault_Reported_Date;
 		
+		console.log(minDate)
 		console.log(maxDate)
 		
 		var amountlineChart  = dc.lineChart("#chart-line-amountperday");
@@ -329,7 +330,8 @@
         }
        
 		);
-		
+	
+	console.log("Faults_Bubbles");
 	console.log(Faults_Bubbles);
 
 	faultsBubbleChart
@@ -358,14 +360,14 @@
         .y(d3.scale.linear().domain([0, 4000]))
         .r(d3.scale.linear().domain([0, 250]))
         /* .elasticY(true) Do not enable this otherwise it will override the range in .y(d3.scale.linear().domain([x, y]))*/
-        /*.elasticX(true) /* Do not enable this otherwise it will override the range in .x(d3.time.scale().domain([minDate, maxDate])) */
+        /* .elasticX(true) Do not enable this otherwise it will override the range in .x(d3.time.scale().domain([minDate, maxDate])) */
         .yAxisPadding(100)
         .xAxisPadding(500)
         .renderHorizontalGridLines(true)
         .renderVerticalGridLines(true)
         .xAxisLabel('Date')
         .yAxisLabel('ratio classification / fault count')
-        .renderLabel(false) /* These are the labels of the bubbles */
+        .renderLabel(true) /* These are the labels of the bubbles */
         /* .label(function (p) {
             return p.key;
         }) */

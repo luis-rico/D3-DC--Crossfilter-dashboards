@@ -103,11 +103,27 @@ def sysviews12():
 def sysviews13():
     return render_template("indexLHR_6.html")
 
-## Bubble chart full classication (as opposed to top 10)
-## sysviews11, 12 and 13 still not working
+## Bubble chart with stategy to define dimensions, then groups and then reduce as found in
+## http://frozen-hollows-5121.herokuapp.com/
 @app.route('/sysviews14')
 def sysviews14():
     return render_template("indexLHR_7.html")
+	
+## Bubble chart in sysviews14 looks promising. However, I need known data to debug
+## This has showed me that I need to group by date and group again
+@app.route('/sysviews15')
+def sysviews15():
+    return render_template("indexLHR_8.html")
+	
+## Bubble chart with different strategies to group Date
+@app.route('/sysviews16')
+def sysviews16():
+    return render_template("indexLHR_9.html")
+	
+## Bubble chart with different strategies to group Date wip pero promising
+@app.route('/sysviews17')
+def sysviews17():
+    return render_template("indexLHR_10.html")
 	
 if __name__ == "__main__":
     app.run()
