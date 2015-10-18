@@ -125,5 +125,33 @@ def sysviews16():
 def sysviews17():
     return render_template("indexLHR_10.html")
 	
+## Can I dimple Bubble chart be included? Lets find out
+## The answer is yes!
+@app.route('/sysviews18')
+def sysviews18():
+    return render_template("indexLHR_11.html")
+	
+## Can a dimple Bubble chart be update data? Lets find out
+## And the answer is... no
+## Data structure is different. Dimple requires a matrix style data object whereas cross filter relies on dimensions and groupings. 
+## This means that reference to dimensions is completely different
+## How to solve this? Can it be even solved?
+@app.route('/sysviews19')
+def sysviews19():
+    return render_template("indexLHR_12.html")
+	
+## Back to customizing bubble chart in dc.js
+## Baseline as per sysviews17
+@app.route('/sysviews20')
+def sysviews20():
+    return render_template("indexLHR_13.html")
+	
+## Playground example found in https://github.com/fenicento/geomedia/blob/master/components/dcjs/test/play-ground.html
+## x-axis means to have a categorical dimension
+@app.route('/sysviews21')
+def sysviews21():
+    return render_template("playground.html")
+	
+	
 if __name__ == "__main__":
     app.run()

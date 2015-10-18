@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard Starter UI, by Keen IO</title>
+  <link rel="stylesheet" type="text/css" href="/static/assets/lib/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="/static/assets/css/keen-dashboards.css" />
+  <script type="text/javascript" src="https://rawgithub.com/NickQiZhu/dc.js/master/web/js/crossfilter.js"></script>
+  <script src="/static/d3.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/dc/1.7.0/dc.css" media="screen" /> 
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/dc/1.7.0/dc.js" type="text/javascript"></script>
+  
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css" />
+  <script src="https://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"></script>
+  <script src="https://cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js" type="text/javascript"></script>
+  
+</head>
+<body class="application">
+
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../">
+          <span class="glyphicon glyphicon-chevron-left"></span>
+        </a>
+        <a class="navbar-brand" href="./">Waratah Train System Views data - Dashboard demo by Luis Rico Sep 2015</a>
+      </div>
+    </div>
+  </div>
+
+ 
+  
+  <div class="container-fluid">
+    <div class="row">
+
+      <div class="col-sm-6">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            All Faults Count
+          </div>
+          <div class="chart-stage">
+			<div id="chart-line-amountperday" ></div>
+          </div>
+          <div class="chart-notes">
+            Line chart
+          </div>
+        </div>
+      </div>
+	  
+	  
+	  <div class="col-sm-6 col-md-3">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Top 10 Fault Classification
+          </div>
+          <div class="chart-stage">
+            <div id="row-chart" ></div>
+          </div>
+          <div class="chart-notes">
+            Row chart
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-3">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Year
+          </div>
+          <div class="chart-stage">
+            <div id="chart-ring-year" ></div>
+          </div>
+          <div class="chart-notes">
+            Ring chart
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="row">
+ 
+	  
+	  <div class="col-sm-6">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Faults Count is circle radius size
+          </div>
+          <div class="chart-stage">
+			<div id="chart-bubble" ></div>
+          </div>
+          <div class="chart-notes">
+            Bubble chart
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <hr>
+
+    <p class="small text-muted">Built with &#9829; by <a href="https://keen.io">Keen IO</a></p>
+
+  </div>
+
+  <!-- <script type="text/javascript" src="/static/assets/lib/jquery/dist/jquery.min.js"></script> -->
+  <script type="text/javascript" src="/static/assets/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+
+  <script type="text/javascript" src="/static/assets/lib/holderjs/holder.js"></script>
+  <script>
+    Holder.add_theme("white", { background:"#fff", foreground:"#a7a7a7", size:10 });
+  </script>
+
+  <script type="text/javascript" src="/static/assets/lib/keen-js/dist/keen.min.js"></script>
+  <script type="text/javascript" src="/static/assets/js/meta.js"></script>
+
+<script>
+		
+	
+	
+		
+	d3.tsv("/static/Known_Data.tsv", function (data) {	
+		
+			
+		//console.log(data);
+		
+// Everything is imported as a string by default. Numeric column in read data must be converter to numeric
+				
+		var convert_2_int = function() {
+			var max_length = data.length; 
+				for (var i=0; i < max_length; i++) {
+					data[i]["Num_Faults"] = parseInt(data[i]["Num_Faults"]);
+				}
+		}
+		
+		convert_2_int();
+		
+		console.log(data);
+
+// Date format needs to be parsed and and the same time, an aggregate field can be processed
+
+		
+		var parseDate = d3.time.format("%d/%m/%Y").parse;  // LHR this is a function expression
+			data.forEach(function(d) {		// LHR d only exists whilst forEach is being executed.
+			d.Fault_Reported_Date = parseDate(d.Fault_Reported_Date);
+			d.Year=d.Fault_Reported_Date.getFullYear();
+		});
+		
+		console.log(data);
+
+
+// Line chart code
+		
+		var ndx = crossfilter(data);
+			
+		var dateDim = ndx.dimension(function(d) {return d.Fault_Reported_Date;}); 
+		
+		var minDate = dateDim.bottom(1)[0].Fault_Reported_Date;
+		var maxDate = dateDim.top(1)[0].Fault_Reported_Date;
+		
+		console.log(minDate)
+		console.log(maxDate)
+		
+		var amountlineChart  = dc.lineChart("#chart-line-amountperday");
+		
+
+		var Fault_Count=dateDim.group().reduceSum(function(d)
+			{return d.Num_Faults;} );
+		//var Holidays=dateDim.group().reduceSum(function(d)
+		//	{if (d.Top_Discriminant==='Holidays') {return d.Amount;} else {return 0;}});
+		//var House_Car_Loans=dateDim.group().reduceSum(function(d)
+		//	{if (d.Top_Discriminant==='House & Car Loans') {return d.Amount;} else {return 0;}});
+		//var Moving_to_Melbourne=dateDim.group().reduceSum(function(d)
+		//	{if (d.Top_Discriminant==='Moving to Melbourne') {return d.Amount;} else {return 0;}});
+		//var Non_Essentials=dateDim.group().reduceSum(function(d)
+		//	{if (d.Top_Discriminant==='Non Essentials') {return d.Amount;} else {return 0;}});
+		//var Non_Expenses=dateDim.group().reduceSum(function(d)
+		//	{if (d.Top_Discriminant==='Non Expenses') {return d.Amount;} else {return 0;}});
+			
+		
+		amountlineChart                       
+			.width(750).height(320)
+			.dimension(dateDim)
+			.group(Fault_Count,"Fault Count")
+			//.stack(Holidays,"Holidays")
+			//.stack(House_Car_Loans,"Loans")
+			//.stack(Moving_to_Melbourne,"Moving")
+			//.stack(Non_Essentials,"Non Essentials")
+			.renderArea(true)
+			.x(d3.time.scale().domain([minDate,maxDate])) 
+			.brushOn(true)
+			.legend(dc.legend().x(50).y(10).itemHeight(13).gap(5))
+			.yAxisLabel("Fault Count");
+
+// Ring chart code
+			
+		var yearRingChart   = dc.pieChart("#chart-ring-year");
+		var yearDim  = ndx.dimension(function(d) {return +d.Year;});
+		var year_total = yearDim.group().reduceSum(function(d) {return d.Num_Faults;});
+
+		yearRingChart
+			.width(150).height(150)
+			.dimension(yearDim)
+			.group(year_total)
+			.innerRadius(30);
+
+			
+// Row chart code
+
+
+		var classificationRowChart = dc.rowChart("#row-chart");
+		var classificationDimension = ndx.dimension(function(d) {return d.Classification;});
+		var Faults_ClassificationGroup = classificationDimension.group();
+		
+		Faults_ClassificationDimensionGroup_Row = Faults_ClassificationGroup.reduceSum(function(d) {return d.Num_Faults;});
+		
+	// rather than passing Faults_Classification directly to .group() within classificationRowChart, we generate a function that will filter the top 10 of the Faults_Classification group
+		var filtered_group = filter_top(Faults_ClassificationDimensionGroup_Row);
+		function filter_top(Faults_ClassificationDimensionGroup_Row) {
+		  return {
+			all:function () {
+				return Faults_ClassificationDimensionGroup_Row.top(10);
+				}
+			}
+		 }
+		
+		console.log(filtered_group);
+			
+	    classificationRowChart /* dc.rowChart('#day-of-week-chart', 'chartGroup') */
+			.width(280)
+			.height(300)
+			.margins({top: 20, left: 10, right: 10, bottom: 20})
+			.dimension(classificationDimension)
+			.group(filtered_group)
+			//.group(Faults_Classification)  // No needed as we are having a filter for top 10, otherwise, usual group would have been passed as commented out
+			.ordering(function(d) {return -d.value})
+			
+			//.ordinalColors(['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#dadaeb'])
+			//.colors(['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#dadaeb'])
+			//.label(function (d) {
+			//	return d.key.split('.')[1];
+			//})
+			
+			.title(function (d) {
+				return d.value;
+			})
+			.elasticX(false)
+			.xAxis().ticks(4);
+			
+		
+// Bubble Chart code
+
+	var faultsBubbleChart = dc.bubbleChart('#chart-bubble');
+	
+	// We create a custom group for bubble
+	/*
+		var filtered_group = filter_top(Faults_Classification);
+		function filter_top(Faults_Classification) {
+		  return {
+			all:function () {
+				return Faults_Classification.top(10);
+				}
+			}
+		 } */
+		 
+		 
+	   /* var yearlyPerformanceGroup = yearlyDimension. ( */
+        /* callback for when data is added to the current filter results */
+        /* function (p, v) {
+            ++p.count;
+            p.absGain += v.close - v.open;
+            p.fluctuation += Math.abs(v.close - v.open);
+            p.sumIndex += (v.open + v.close) / 2;
+            p.avgIndex = p.sumIndex / p.count;
+            p.percentageGain = p.avgIndex ? (p.absGain / p.avgIndex) * 100 : 0;
+            p.fluctuationPercentage = p.avgIndex ? (p.fluctuation / p.avgIndex) * 100 : 0;
+            return p;
+        }
+		
+		); */
+		
+		/*
+		
+		var Classification = ndx.dimension(function(d) {return d.Classification;});
+		var Faults_Classification = Classification.group().reduceSum(function(d) {return d.Num_Faults;});
+		
+	// rather than passing Faults_Classification directly to .group() within classificationRowChart, we generate a function that will filter the top 10 of the Faults_Classification group
+		var filtered_group = filter_top(Faults_Classification);
+		function filter_top(Faults_Classification) {
+		  return {
+			all:function () {
+				return Faults_Classification.top(10);
+				}
+			}
+		 }
+		*/
+		
+		/* Rappel
+		
+			var dateDim = ndx.dimension(function(d) {return d.Fault_Reported_Date;}); 	
+
+			var Fault_Count=dateDim.group()(function(d)
+				{function(d) {return d.Classification;} });	
+		*/
+			
+		var dateDimGroup = dateDim.group();
+		var dateDimClassification = dateDimGroup.reduce(function (d) 
+				{return d.Classification;});
+				
+		var dateDimClassificationCount = dateDimClassification.reduceSum(function(d) {return d.Num_Faults;});
+		
+		var Faults_Bubbles = dateDimClassificationCount.reduce(
+		/* callback for when data is added to the current filter results */
+        function (p, v) {
+            ++p.count;
+			/* p.radius_bubble = p.count ? p.count : 0; */
+            p.yaxis_value = p.count ? p.Classification : 0;
+            p.date_bubble = v.Fault_Reported_Date;
+            return p;
+        },
+		/* callback for when data is removed from the current filter results */
+        function (p, v) {
+            --p.count;
+			/* p.radius_bubble = p.count ? p.count : 0; */
+            p.yaxis_value = p.count ? p.Classification : 0;
+            p.date_bubble = v.Fault_Reported_Date;
+            return p;
+        },
+         /* initialize p */
+        function () {
+            return {
+				count: 0,
+                yaxis_value: 0,
+                /* radius_bubble: 0, */
+                date_bubble: 0
+            };
+        }
+       
+		);
+	
+	console.log("Faults_Bubbles");
+	console.log(Faults_Bubbles);
+
+	faultsBubbleChart
+        .width(590)
+        .height(250)
+        .transitionDuration(1500)
+        .margins({top: 10, right: 50, bottom: 30, left: 40})
+        .dimension(classificationDimension)
+        .group(Faults_Bubbles)
+        /* .colors(colorbrewer.RdYlGn[9]) */
+        .colorDomain([-500, 500])
+        /*.colorAccessor(function (d) {
+            return d.value.absGain;
+        })*/
+        .keyAccessor(function (p) {
+            return p.value.date_bubble;
+        })
+        .valueAccessor(function (p) {
+            return p.value.yaxis_value;
+        })
+        .radiusValueAccessor(function (p) {
+            return p.value.count;
+        })
+        .maxBubbleRelativeSize(0.3)
+        .x(d3.time.scale().domain([minDate, maxDate]))
+        .y(d3.scale.ordinal())
+        .r(d3.scale.linear().domain([0, 250]))
+        /* .elasticY(true) Do not enable this otherwise it will override the range in .y(d3.scale.linear().domain([x, y]))*/
+        /* .elasticX(true) Do not enable this otherwise it will override the range in .x(d3.time.scale().domain([minDate, maxDate])) */
+        .yAxisPadding(100)
+        .xAxisPadding(500)
+        .renderHorizontalGridLines(true)
+        .renderVerticalGridLines(true)
+        .xAxisLabel('Date')
+        .yAxisLabel('Trying to get Classification labels')
+        .renderLabel(true) /* These are the labels of the bubbles */
+        /* .label(function (p) {
+            return p.key;
+        }) */
+        /*.renderTitle(true)*/
+        /* .title(function (p) {
+            return [
+                p.key,
+                'Index Gain: ' + numberFormat(p.value.absGain),
+                'Index Gain in Percentage: ' + numberFormat(p.value.percentageGain) + '%',
+                'Fluctuation / Index Ratio: ' + numberFormat(p.value.fluctuationPercentage) + '%'
+            ].join('\n');
+        }) */
+		/* .brushOn(true) this is not a feature for bubble charts according to blog found in web */
+        .yAxis().tickFormat(function (v) {
+            return v ;
+        });
+		
+		
+		
+		dc.renderAll();
+		
+		
+		
+	});
+	
+	
+
+ </script>
+
+  
+  
+</body>
+
+
+
+</html>
