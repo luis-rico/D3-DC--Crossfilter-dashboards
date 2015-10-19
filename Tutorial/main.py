@@ -146,11 +146,6 @@ def sysviews19():
 def sysviews20():
     return render_template("indexLHR_13.html")
 	
-## Playground example found in https://github.com/fenicento/geomedia/blob/master/components/dcjs/test/play-ground.html
-## x-axis means to have a categorical dimension
-@app.route('/sysviews21')
-def sysviews21():
-    return render_template("playground.html")
 	
 	
 if __name__ == "__main__":

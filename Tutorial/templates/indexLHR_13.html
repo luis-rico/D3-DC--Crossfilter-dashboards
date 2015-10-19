@@ -124,7 +124,7 @@
 	
 	
 		
-	d3.tsv("/static/Known_Data.tsv", function (data) {	
+	d3.tsv("/static/Known_Data2.tsv", function (data) {	
 		
 			
 		//console.log(data);
@@ -319,32 +319,32 @@
         function (p, v) {
             ++p.count;
 			/* p.radius_bubble = p.count ? p.count : 0; */
-            p.yaxis_value = p.count ? p.Classification : 0;
-            p.date_bubble = v.Fault_Reported_Date;
+            p.classification = p.count ? v.Num_Class : 0;
+            /* p.date_bubble = v.Fault_Reported_Date; */
             return p;
         },
 		/* callback for when data is removed from the current filter results */
         function (p, v) {
             --p.count;
 			/* p.radius_bubble = p.count ? p.count : 0; */
-            p.yaxis_value = p.count ? p.Classification : 0;
-            p.date_bubble = v.Fault_Reported_Date;
+            p.classification = p.count ? v.Num_Class : 0;
+            /* p.date_bubble = v.Fault_Reported_Date; */
             return p;
         },
          /* initialize p */
         function () {
             return {
 				count: 0,
-                yaxis_value: 0,
-                /* radius_bubble: 0, */
-                date_bubble: 0
+                classification: 0,
+                /* radius_bubble: 0, 
+                date_bubble: 0 */
             };
         }
        
 		);
 	
 	console.log("Faults_Bubbles");
-	console.log(Faults_Bubbles);
+	
 
 	faultsBubbleChart
         .width(590)
@@ -359,17 +359,28 @@
             return d.value.absGain;
         })*/
         .keyAccessor(function (p) {
-            return p.value.date_bubble;
+            return p.value.classification;
         })
         .valueAccessor(function (p) {
-            return p.value.yaxis_value;
+            return p.value.count;
         })
         .radiusValueAccessor(function (p) {
             return p.value.count;
         })
         .maxBubbleRelativeSize(0.3)
-        .x(d3.time.scale().domain([minDate, maxDate]))
-        .y(d3.scale.ordinal())
+        /* .x(d3.time.scale().domain([minDate, maxDate])) */
+		
+		/* My attempt LHR */
+		.x(d3.scale.ordinal().domain(["A", "T", "F", "Z", "AA", "TT", "FF", "ZZ"]))
+        /*.xUnits(dc.units.ordinal) */
+		
+		/* Reference
+		.x(d3.scale.ordinal().domain(["A", "T", "F", "Z"]))
+        .xUnits(dc.units.ordinal) */
+		
+		/*.x(d3.scale.linear().domain([0, 8])) */
+		.y(d3.scale.linear().domain([0, 8]))
+
         .r(d3.scale.linear().domain([0, 250]))
         /* .elasticY(true) Do not enable this otherwise it will override the range in .y(d3.scale.linear().domain([x, y]))*/
         /* .elasticX(true) Do not enable this otherwise it will override the range in .x(d3.time.scale().domain([minDate, maxDate])) */
@@ -377,8 +388,8 @@
         .xAxisPadding(500)
         .renderHorizontalGridLines(true)
         .renderVerticalGridLines(true)
-        .xAxisLabel('Date')
-        .yAxisLabel('Trying to get Classification labels')
+        .xAxisLabel('To determine')
+        .yAxisLabel('Classification wip')
         .renderLabel(true) /* These are the labels of the bubbles */
         /* .label(function (p) {
             return p.key;
@@ -393,9 +404,9 @@
             ].join('\n');
         }) */
 		/* .brushOn(true) this is not a feature for bubble charts according to blog found in web */
-        .yAxis().tickFormat(function (v) {
+        /*.yAxis().tickFormat(function (v) {
             return v ;
-        });
+        }); */
 		
 		
 		
